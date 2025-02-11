@@ -3,6 +3,7 @@ package com.example.totasks.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
@@ -14,6 +15,8 @@ class TasksScheduleAdapter : RecyclerView.Adapter<TasksScheduleAdapter.TaskSched
     inner class TaskScheduleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val taskNameTxtView = itemView.findViewById<TextView>(R.id.taskNameTxtView)
         val taskTimeTxtView = itemView.findViewById<TextView>(R.id.taskTimeTxtView)
+        val taskImportanceColumn = itemView.findViewById<RelativeLayout>(R.id.importanceColumn)
+        val taskType = itemView.findViewById<TextView>(R.id.taskTypeTxtView)
     }
 
     private var differCallBack = object : DiffUtil.ItemCallback<Task>() {
@@ -48,7 +51,20 @@ class TasksScheduleAdapter : RecyclerView.Adapter<TasksScheduleAdapter.TaskSched
         val currentTask = differ.currentList[position]
         holder.apply {
             taskNameTxtView.text = currentTask.TaskName
-            taskTimeTxtView.text = currentTask.StartTime.toString() + " - " + currentTask.EndTime.toString()
+            taskTimeTxtView.text =
+                currentTask.StartTime.toString() + " - " + currentTask.EndTime.toString()
+            taskType.text = currentTask.Type
+
+            // Change color of importance collumn
+            taskImportanceColumn.setBackgroundColor(
+                when (currentTask.Importance) {
+                    "Very Important" -> android.graphics.Color.parseColor("#D32F2F") // Đỏ đậm
+                    "Important" -> android.graphics.Color.parseColor("#FF9800") // Cam
+                    "Normal" -> android.graphics.Color.parseColor("#2196F3") // Xanh dương
+                    "Less Important" -> android.graphics.Color.parseColor("#4CAF50") // Xanh lá
+                    else -> android.graphics.Color.GRAY // Mặc định
+                }
+            )
         }
     }
 

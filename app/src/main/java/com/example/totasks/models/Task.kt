@@ -8,6 +8,8 @@ data class Task (
     var Importance: String,
     var DayOfWeek: String,
     var Duration: Int,
+    var StartTimeInMinute: Int,
     var StartTime: String,
+    var EndTimeInMinute: Int,
     var EndTime: String
 )

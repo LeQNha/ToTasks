@@ -72,15 +72,20 @@ class TasksSchedulePrototype : BaseActivity(), TaskDialogListener {
     fun taskScheduleRvUpdate(){
         taskViewModel._predictedTask.observe(this){ predictedTask ->
             predictedTaskArrayList.add(predictedTask)
+            predictedTaskArrayList.sortBy {
+                it.StartTimeInMinute
+            }
             tasksScheduleAdapter.differ.submitList(predictedTaskArrayList.toList()) // Cập nhật danh sách
             tasksScheduleAdapter.notifyDataSetChanged()
         }
     }
 
     override fun onTaskAdded(task: Task) {
+        taskArrayList = predictedTaskArrayList
         taskArrayList.add(task)
         binding.taskNumberTxtView.text = (binding.taskNumberTxtView.text.toString().toInt() + 1).toString()
-//        tasksScheduleAdapter.differ.submitList(taskArrayList.toList()) // Cập nhật danh sách
-//        tasksScheduleAdapter.notifyDataSetChanged()
+
+        tasksScheduleAdapter.differ.submitList(taskArrayList.toList()) // Cập nhật danh sách
+        tasksScheduleAdapter.notifyDataSetChanged()
     }
 }

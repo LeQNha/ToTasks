@@ -24,7 +24,7 @@ class TestActivity : AppCompatActivity() {
     }
 
     fun getTasks(){
-        val task = Task(binding.taskNameEditTxt.text.toString(), "", "", "Monday", 0, "", "")
+//        val task = Task(binding.taskNameEditTxt.text.toString(), "", "", "Monday", 0, 0, "")
 //        RetrofitInstance.taskApi.predictTasks(task).enqueue(object : Callback<List<Task>>{
 //            override fun onResponse(call: retrofit2.Call<List<Task>>, response: Response<List<Task>>) {
 //                if(response.isSuccessful){

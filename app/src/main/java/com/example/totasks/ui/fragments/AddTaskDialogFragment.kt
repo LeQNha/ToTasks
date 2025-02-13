@@ -71,8 +71,14 @@ class AddTaskDialogFragment : DialogFragment() {
             val startTime = binding.taskStartTimeEditText.text.toString()
             val endTime = binding.taskEndTimeEditText.text.toString()
 
+            var startTimeInMinute = 0
+            if(startTime.isNotEmpty()){
+                val hm = startTime.split(":")
+                startTimeInMinute = (hm[0].toInt())*60 + hm[1].toInt()
+            }
+
             if (name.isNotEmpty() && day.isNotEmpty()) {
-                val newTask = Task(name, type, importance, day, duration,0, startTime,0, endTime)
+                val newTask = Task(name, type, importance, day, duration, startTimeInMinute, startTime,0, endTime)
                 listener?.onTaskAdded(newTask)
                 dismiss() // Đóng dialog sau khi thêm task
             }

@@ -6,6 +6,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import androidx.fragment.app.DialogFragment
 import com.example.totasks.R
 import com.example.totasks.databinding.FragmentAddTaskDialogBinding
@@ -56,14 +58,15 @@ class AddTaskDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupSpinners()
         onClickListenerSetUp()
     }
 
     fun onClickListenerSetUp() {
         binding.addTaskButton.setOnClickListener {
             val name = binding.taskNameEditText.text.toString()
-            val type = binding.taskTypeEditText.text.toString()
-            val importance = binding.taskImportanceEditText.text.toString()
+            val type = binding.taskTypeSpinner.selectedItem.toString() // Lấy giá trị từ Spinner
+            val importance = binding.taskImportanceSpinner.selectedItem.toString() // Lấy giá trị từ Spinner
             val day = binding.taskDayEditText.text.toString()
             // Chuyển đổi duration từ String thành Int an toàn
             val durationText = binding.taskDurationEditText.text.toString()
@@ -72,17 +75,43 @@ class AddTaskDialogFragment : DialogFragment() {
             val endTime = binding.taskEndTimeEditText.text.toString()
 
             var startTimeInMinute = 0
-            if(startTime.isNotEmpty()){
+            if (startTime.isNotEmpty()) {
                 val hm = startTime.split(":")
-                startTimeInMinute = (hm[0].toInt())*60 + hm[1].toInt()
+                startTimeInMinute = (hm[0].toInt()) * 60 + hm[1].toInt()
             }
 
             if (name.isNotEmpty() && day.isNotEmpty()) {
-                val newTask = Task(name, type, importance, day, duration, startTimeInMinute, startTime,0, endTime)
+                val newTask = Task(
+                    name,
+                    type,
+                    importance,
+                    day,
+                    duration,
+                    startTimeInMinute,
+                    startTime,
+                    0,
+                    endTime
+                )
                 listener?.onTaskAdded(newTask)
                 dismiss() // Đóng dialog sau khi thêm task
             }
         }
+    }
+
+    private fun setupSpinners() {
+        // Danh sách loại công việc
+        val taskTypes = listOf("", "Personal", "Education", "Work")
+        val typeAdapter =
+            ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, taskTypes)
+        typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.taskTypeSpinner.adapter = typeAdapter
+
+        // Danh sách mức độ quan trọng
+        val importanceLevels = listOf("", "Less Important", "Normal", "Important", "Very Important")
+        val importanceAdapter =
+            ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, importanceLevels)
+        importanceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.taskImportanceSpinner.adapter = importanceAdapter
     }
 
 //    interface TaskDialogListener {

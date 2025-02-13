@@ -1,20 +1,18 @@
 package com.example.totasks.ui
 
+import android.app.DatePickerDialog
 import android.os.Bundle
-import android.view.LayoutInflater
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.totasks.R
 import com.example.totasks.adapters.TasksScheduleAdapter
 import com.example.totasks.databinding.ActivityTasksSchedulePrototypeBinding
 import com.example.totasks.interfaces.TaskDialogListener
+import com.example.totasks.models.Day
 import com.example.totasks.ui.activities.BaseActivity
 import com.example.totasks.ui.fragments.AddTaskDialogFragment
-import com.example.totasks.viewmodels.TaskViewModel
 import nha.kc.kotlincode.models.Task
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class TasksSchedulePrototype : BaseActivity(), TaskDialogListener {
     private lateinit var binding: ActivityTasksSchedulePrototypeBinding
@@ -24,6 +22,9 @@ class TasksSchedulePrototype : BaseActivity(), TaskDialogListener {
     lateinit var predictedTaskArrayList: ArrayList<Task>
     lateinit var taskArrayList: ArrayList<Task>
 
+    lateinit var selectedDate: Day
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTasksSchedulePrototypeBinding.inflate(layoutInflater)
@@ -31,6 +32,13 @@ class TasksSchedulePrototype : BaseActivity(), TaskDialogListener {
 
         taskArrayList = arrayListOf()
         predictedTaskArrayList = arrayListOf()
+
+        val calendar = Calendar.getInstance()
+        selectedDate = Day(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
+//        selectedDate.year = calendar.get(Calendar.YEAR)
+//        selectedDate.month = calendar.get(Calendar.MONTH)
+//        selectedDate.day = calendar.get(Calendar.DAY_OF_MONTH)
+
 
         taskScheduleRvSetUp()
         onClickListennerSetUp()
@@ -67,6 +75,10 @@ class TasksSchedulePrototype : BaseActivity(), TaskDialogListener {
             binding.taskNumberTxtView.text = "0"
             predictedTaskArrayList.clear()
         }
+
+        binding.openCalendarBtn.setOnClickListener {
+            showDatePickerDialog()
+        }
     }
 
     fun taskScheduleRvUpdate(){
@@ -87,5 +99,37 @@ class TasksSchedulePrototype : BaseActivity(), TaskDialogListener {
 
         tasksScheduleAdapter.differ.submitList(taskArrayList.toList()) // Cập nhật danh sách
         tasksScheduleAdapter.notifyDataSetChanged()
+    }
+
+    private fun showDatePickerDialog() {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        val datePickerDialog = DatePickerDialog(this, { _, selectedYear, selectedMonth, selectedDay ->
+            // Chuyển đổi ngày thành định dạng mong muốn
+            val selectedCalendar = Calendar.getInstance()
+            selectedCalendar.set(selectedYear, selectedMonth, selectedDay)
+
+            selectedDate.year = selectedYear
+            selectedDate.month = selectedMonth
+            selectedDate.day = selectedDay
+
+            // Lấy tên ngày trong tuần (ví dụ: Monday)
+            val dayOfWeekFormat = SimpleDateFormat("EEEE", Locale.getDefault())
+            val dayOfWeek = dayOfWeekFormat.format(selectedCalendar.time)
+
+            // Lấy ngày tháng năm (định dạng: dd/MM/yyyy)
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val date = dateFormat.format(selectedCalendar.time)
+
+            // Hiển thị ngày được chọn
+            binding.dayOfWeekTxtView.text = dayOfWeek
+            binding.dayTxtView.text = date
+//        }, year, month, day)
+        }, selectedDate.year, selectedDate.month, selectedDate.day)
+
+        datePickerDialog.show()
     }
 }

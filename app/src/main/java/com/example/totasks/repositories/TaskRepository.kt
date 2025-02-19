@@ -30,9 +30,12 @@ class TaskRepository {
             }
     }
 
-    fun updateTask(task:Task){
+    fun updateTask(task: Task) {
         taskCollectionRef.document(task.TaskId!!)
-            .set(task, SetOptions.merge()) // merge() giúp chỉ cập nhật trường có dữ liệu, không ghi đè toàn bộ
+            .set(
+                task,
+                SetOptions.merge()
+            ) // merge() giúp chỉ cập nhật trường có dữ liệu, không ghi đè toàn bộ
             .addOnSuccessListener {
                 Log.d("Firestore", "Task updated successfully")
             }
@@ -41,6 +44,40 @@ class TaskRepository {
             }
     } //ghi đè
 
+    fun deleteTasks() {
+//        taskCollectionRef.whereEqualTo("dayId", "12").get()
+//            .addOnSuccessListener { querySnapshot ->
+//                for (document in querySnapshot) {
+//                    collectionRef.document(document.id).delete()
+//                        .addOnSuccessListener {
+//                            println("Document ${document.id} deleted successfully")
+//                        }
+//                        .addOnFailureListener { e ->
+//                            println("Error deleting document: ${e.message}")
+//                        }
+//                }
+//            }
+//            .addOnFailureListener { e ->
+//                println("Error fetching documents: ${e.message}")
+//            }
+
+        taskCollectionRef.get()
+            .addOnSuccessListener { querySnapshot ->
+                for (doc in querySnapshot) {
+                    taskCollectionRef.document(doc.id).delete()
+                        .addOnSuccessListener {
+                            println("Document ${doc.id} deleted successfully")
+                        }
+                        .addOnFailureListener { e ->
+                            println("Error deleting document: ${e.message}")
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                println("Error fetching documents: ${e.message}")
+            }
+    }
+
     fun getTasks(listener: (List<Task>) -> Unit) {
         taskCollectionRef
             .addSnapshotListener { snapshot, error ->
@@ -48,7 +85,7 @@ class TaskRepository {
                     Log.w("Firestore", "Listen failed", error)
                     return@addSnapshotListener
                 } else {
-                    if (snapshot != null && !snapshot.isEmpty){
+                    if (snapshot != null && !snapshot.isEmpty) {
                         val taskList = snapshot.documents.mapNotNull { documentSnapshot ->
                             documentSnapshot.toObject(Task::class.java)
                         }

@@ -28,6 +28,14 @@ class TaskViewModel(val taskRepository: TaskRepository) : ViewModel() {
         taskRepository.addTask(task)
     }
 
+    fun updateTask(task: Task){
+        taskRepository.updateTask(task)
+    }
+
+    fun deleteTasks(){
+        taskRepository.deleteTasks()
+    }
+
     fun getTasks() {
         taskRepository.getTasks {
             _tasks.postValue(it)

@@ -63,6 +63,7 @@ class TasksSchedulePrototype : BaseActivity(), TaskDialogListener {
         taskViewModel.getTasks()
 
         taskViewModel._tasks.observe(this){ tasks ->
+            predictedTaskArrayList.clear()
             for (t in tasks) {
                 predictedTaskArrayList.add(t)
             }
@@ -84,6 +85,9 @@ class TasksSchedulePrototype : BaseActivity(), TaskDialogListener {
         }
 
         binding.predictTaskScheduleBtn.setOnClickListener {
+//            predictedTaskArrayList.clear()
+
+            taskViewModel.deleteTasks()
             for (task in taskArrayList){
                 taskViewModel.predictTaskSchedule(task)
             }
@@ -117,7 +121,10 @@ class TasksSchedulePrototype : BaseActivity(), TaskDialogListener {
     fun addTaskToDatabase(predictedTask: Task?){
         predictedTask?.let {
             taskViewModel.addTask(it)
+//            taskViewModel.updateTask(it)
         }
+
+//        taskViewModel.getTasks()
     }
 
     override fun onTaskAdded(task: Task) {

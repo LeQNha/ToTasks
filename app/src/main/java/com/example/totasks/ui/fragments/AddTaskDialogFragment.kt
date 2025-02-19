@@ -82,6 +82,7 @@ class AddTaskDialogFragment : DialogFragment() {
 
             if (name.isNotEmpty() && day.isNotEmpty()) {
                 val newTask = Task(
+                    "",
                     name,
                     type,
                     importance,

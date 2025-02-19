@@ -58,7 +58,22 @@ class TasksSchedulePrototype : BaseActivity(), TaskDialogListener {
 //        taskArrayList.add(Task("Eat", "Play", "Normal", "Wednesday", 60,"17:00", "18:00"))
 
 //        tasksScheduleAdapter.differ.submitList(taskArrayList)
-        tasksScheduleAdapter.differ.submitList(predictedTaskArrayList)
+
+
+        taskViewModel.getTasks()
+
+        taskViewModel._tasks.observe(this){ tasks ->
+            for (t in tasks) {
+                predictedTaskArrayList.add(t)
+            }
+            taskArrayList.sortBy {
+                it.StartTimeInMinute
+            }
+            tasksScheduleAdapter.differ.submitList(predictedTaskArrayList.toList()) // Cập nhật danh sách
+            tasksScheduleAdapter.notifyDataSetChanged()
+        }
+
+//        tasksScheduleAdapter.differ.submitList(predictedTaskArrayList)
     }
 
     fun onClickListennerSetUp(){
@@ -82,13 +97,26 @@ class TasksSchedulePrototype : BaseActivity(), TaskDialogListener {
     }
 
     fun taskScheduleRvUpdate(){
-        taskViewModel._predictedTask.observe(this){ predictedTask ->
-            predictedTaskArrayList.add(predictedTask)
-            predictedTaskArrayList.sortBy {
-                it.StartTimeInMinute
-            }
-            tasksScheduleAdapter.differ.submitList(predictedTaskArrayList.toList()) // Cập nhật danh sách
-            tasksScheduleAdapter.notifyDataSetChanged()
+//        taskViewModel._predictedTask.observe(this){ predictedTask ->
+//            predictedTaskArrayList.add(predictedTask)
+//            predictedTaskArrayList.sortBy {
+//                it.StartTimeInMinute
+//            }
+//            tasksScheduleAdapter.differ.submitList(predictedTaskArrayList.toList()) // Cập nhật danh sách
+//            tasksScheduleAdapter.notifyDataSetChanged()
+//        }
+
+
+        var predictedTask: Task? = null
+        taskViewModel._predictedTask.observe(this){ it ->
+            predictedTask = it
+            addTaskToDatabase(predictedTask)
+        }
+    }
+
+    fun addTaskToDatabase(predictedTask: Task?){
+        predictedTask?.let {
+            taskViewModel.addTask(it)
         }
     }
 
@@ -99,6 +127,8 @@ class TasksSchedulePrototype : BaseActivity(), TaskDialogListener {
 
         tasksScheduleAdapter.differ.submitList(taskArrayList.toList()) // Cập nhật danh sách
         tasksScheduleAdapter.notifyDataSetChanged()
+
+//        taskViewModel.addTask(task)
     }
 
     private fun showDatePickerDialog() {

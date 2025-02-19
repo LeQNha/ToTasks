@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 class TaskViewModel(val taskRepository: TaskRepository) : ViewModel() {
 
     val _predictedTask = MutableLiveData<Task>()
+    var _tasks: MutableLiveData<List<Task>> = MutableLiveData()
 
     fun predictTaskSchedule(task: Task) = viewModelScope.launch {
         try {
@@ -23,8 +24,19 @@ class TaskViewModel(val taskRepository: TaskRepository) : ViewModel() {
         }
     }
 
+    fun addTask(task: Task) {
+        taskRepository.addTask(task)
+    }
 
-    class TaskViewModelProviderFactory(val taskRepository: TaskRepository): ViewModelProvider.Factory{
+    fun getTasks() {
+        taskRepository.getTasks {
+            _tasks.postValue(it)
+        }
+    }
+
+
+    class TaskViewModelProviderFactory(val taskRepository: TaskRepository) :
+        ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return TaskViewModel(taskRepository) as T
         }

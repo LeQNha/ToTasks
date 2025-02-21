@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.totasks.adapters.TasksScheduleAdapter
 import com.example.totasks.databinding.ActivityTasksSchedulePrototypeBinding
 import com.example.totasks.interfaces.TaskDialogListener
-import com.example.totasks.models.Day
+import com.example.totasks.models.Date
 import com.example.totasks.ui.activities.BaseActivity
 import com.example.totasks.ui.fragments.AddTaskDialogFragment
 import nha.kc.kotlincode.models.Task
@@ -22,7 +22,8 @@ class TasksSchedulePrototype : BaseActivity(), TaskDialogListener {
     lateinit var predictedTaskArrayList: ArrayList<Task>
     lateinit var taskArrayList: ArrayList<Task>
 
-    lateinit var selectedDate: Day
+    lateinit var selectedDate: Date
+    lateinit var selectedDateId: String
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,13 +34,7 @@ class TasksSchedulePrototype : BaseActivity(), TaskDialogListener {
         taskArrayList = arrayListOf()
         predictedTaskArrayList = arrayListOf()
 
-        val calendar = Calendar.getInstance()
-        selectedDate = Day(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
-//        selectedDate.year = calendar.get(Calendar.YEAR)
-//        selectedDate.month = calendar.get(Calendar.MONTH)
-//        selectedDate.day = calendar.get(Calendar.DAY_OF_MONTH)
-
-
+        dateSetUp()
         taskScheduleRvSetUp()
         onClickListennerSetUp()
         taskScheduleRvUpdate()
@@ -53,16 +48,21 @@ class TasksSchedulePrototype : BaseActivity(), TaskDialogListener {
             adapter = tasksScheduleAdapter
         }
 
-//        taskArrayList.add(Task("Eat", "Personal", "Normal", "Monday", 30,"7:00", "7:30"))
-//        taskArrayList.add(Task("Study", "Education", "Important", "Tuesday", 120,"9:00", "11:00"))
-//        taskArrayList.add(Task("Eat", "Play", "Normal", "Wednesday", 60,"17:00", "18:00"))
+//        taskViewModel.getTasks()
+        taskScheduleViewModel.getTasks(selectedDateId)
 
-//        tasksScheduleAdapter.differ.submitList(taskArrayList)
-
-
-        taskViewModel.getTasks()
-
-        taskViewModel._tasks.observe(this){ tasks ->
+//        taskViewModel._tasks.observe(this){ tasks ->
+//            predictedTaskArrayList.clear()
+//            for (t in tasks) {
+//                predictedTaskArrayList.add(t)
+//            }
+//            taskArrayList.sortBy {
+//                it.StartTimeInMinute
+//            }
+//            tasksScheduleAdapter.differ.submitList(predictedTaskArrayList.toList()) // Cập nhật danh sách
+//            tasksScheduleAdapter.notifyDataSetChanged()
+//        }
+        taskScheduleViewModel._tasks.observe(this){ tasks ->
             predictedTaskArrayList.clear()
             for (t in tasks) {
                 predictedTaskArrayList.add(t)
@@ -74,7 +74,6 @@ class TasksSchedulePrototype : BaseActivity(), TaskDialogListener {
             tasksScheduleAdapter.notifyDataSetChanged()
         }
 
-//        tasksScheduleAdapter.differ.submitList(predictedTaskArrayList)
     }
 
     fun onClickListennerSetUp(){
@@ -85,9 +84,9 @@ class TasksSchedulePrototype : BaseActivity(), TaskDialogListener {
         }
 
         binding.predictTaskScheduleBtn.setOnClickListener {
-//            predictedTaskArrayList.clear()
 
-            taskViewModel.deleteTasks()
+//            taskViewModel.deleteTasks()
+            taskScheduleViewModel.deleteAllTasks(selectedDateId)
             for (task in taskArrayList){
                 taskViewModel.predictTaskSchedule(task)
             }
@@ -120,11 +119,10 @@ class TasksSchedulePrototype : BaseActivity(), TaskDialogListener {
 
     fun addTaskToDatabase(predictedTask: Task?){
         predictedTask?.let {
-            taskViewModel.addTask(it)
-//            taskViewModel.updateTask(it)
+//            taskViewModel.addTask(it)
+            taskScheduleViewModel.addTask(selectedDateId, it)
         }
 
-//        taskViewModel.getTasks()
     }
 
     override fun onTaskAdded(task: Task) {
@@ -136,6 +134,25 @@ class TasksSchedulePrototype : BaseActivity(), TaskDialogListener {
         tasksScheduleAdapter.notifyDataSetChanged()
 
 //        taskViewModel.addTask(task)
+    }
+
+    private fun dateSetUp(){
+        val calendar = Calendar.getInstance()
+        selectedDate = Date("",calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
+
+        // Lấy tên ngày trong tuần (ví dụ: Monday)
+        val dayOfWeekFormat = SimpleDateFormat("EEEE", Locale.getDefault())
+        val dayOfWeek = dayOfWeekFormat.format(calendar.time)
+
+        // Lấy ngày tháng năm (định dạng: dd/MM/yyyy)
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val date = dateFormat.format(calendar.time)
+
+        // Hiển thị ngày được chọn
+        binding.dayOfWeekTxtView.text = dayOfWeek
+        binding.dayTxtView.text = date
+
+        selectedDateId = "${selectedDate.day}-${selectedDate.month}-${selectedDate.year}"
     }
 
     private fun showDatePickerDialog() {
@@ -164,6 +181,13 @@ class TasksSchedulePrototype : BaseActivity(), TaskDialogListener {
             // Hiển thị ngày được chọn
             binding.dayOfWeekTxtView.text = dayOfWeek
             binding.dayTxtView.text = date
+
+            selectedDateId = "${selectedDate.day}-${selectedDate.month}-${selectedDate.year}"
+
+            taskScheduleViewModel.getTasks(selectedDateId)
+
+            println("___GET "+selectedDateId)
+            println("date: $")
 //        }, year, month, day)
         }, selectedDate.year, selectedDate.month, selectedDate.day)
 
